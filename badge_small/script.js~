@@ -1,0 +1,114 @@
+/**
+ * 40mm Badge Maker Application
+ * Version 1.0
+ * 
+ * A tool for creating printable 40mm badge templates
+ * with customizable text and images.
+ */
+
+console.log('Script loading...'); // Debug message
+
+// Configuration Settings
+const CONFIG = {
+  MAX_IMAGES: 20, // Changed from 24 to 20 to match the 4x5 grid
+  MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB
+  BADGE_SIZE: 40, // 40mm
+  BLEED_SIZE: 44, // 44mm
+  DEFAULT_FONT_SIZE: 14,
+  DEFAULT_FONT: 'Arial, sans-serif',
+  DEFAULT_TEXT_COLOR: '#ffffff',
+  DEFAULT_TEXT_SHADOW: true
+};
+
+// State Management
+const appState = {
+  uploadedImages: [],
+  currentImageIndex: -1,
+  currentBadgeIndex: -1,
+  cropper: null,
+  isDragging: false,
+  isResizing: false,
+  currentTextElement: null,
+  startX: 0,
+  startY: 0,
+  startFontSize: 0
+};
+
+// DOM Elements
+const elements = {
+  // Main sections
+  dropZone: document.getElementById('dropZone'),
+  imageUpload: document.getElementById('imageUpload'),
+  uploadPreview: document.getElementById('uploadPreview'),
+  badgePlaceholders: document.querySelectorAll('.badge-placeholder'),
+  
+  // Buttons and controls
+  resetBtn: document.getElementById('resetBtn'),
+  downloadBtn: document.getElementById('downloadBtn'),
+  clearImagesBtn: document.getElementById('clearImagesBtn'),
+  
+  // Image counter
+  imageCounter: document.getElementById('imageCounter'),
+  
+  // Crop modal elements
+  cropModal: document.getElementById('cropModal'),
+  cropperImage: document.getElementById('cropperImage'),
+  cropBtn: document.getElementById('cropBtn'),
+  cancelCropBtn: document.getElementById('cancelCropBtn'),
+  closeCropBtn: document.querySelector('.close'),
+  
+  // Text modal elements
+  textModal: document.getElementById('textModal'),
+  badgeText: document.getElementById('badgeText'),
+  fontFamily: document.getElementById('fontFamily'),
+  fontSize: document.getElementById('fontSize'),
+  fontSizeValue: document.getElementById('fontSizeValue'),
+  textPosition: document.getElementById('textPosition'),
+  textColor: document.getElementById('textColor'),
+  textShadow: document.getElementById('textShadow'),
+  applyTextBtn: document.getElementById('applyTextBtn'),
+  cancelTextBtn: document.getElementById('cancelTextBtn'),
+  closeTextBtn: document.querySelector('.text-close'),
+  
+  // Progress overlay
+  progressOverlay: document.getElementById('progressOverlay'),
+  progressBarFill: document.getElementById('progressBarFill'),
+  progressMessage: document.getElementById('progressMessage')
+};
+
+/**
+ * Initialization Functions
+ */
+
+// Initialize the application
+function initApp() {
+  console.log('Initializing app...'); // Debug message
+  
+  // Check if elements exist
+  console.log('Element check:', {
+    dropZone: !!elements.dropZone,
+    imageUpload: !!elements.imageUpload,
+    uploadPreview: !!elements.uploadPreview
+  });
+  
+  if (!elements.dropZone || !elements.imageUpload || !elements.uploadPreview) {
+    console.error('Required DOM elements are missing. Check HTML structure and IDs.');
+    return;
+  }
+  
+  // Add direct event listener to test
+  const imageUpload = document.getElementById('imageUpload');
+  if (imageUpload) {
+    console.log('Adding direct event listener to image upload');
+    imageUpload.addEventListener('change', function(e) {
+      console.log('Direct file input change detected', e.target.files);
+      handleFileSelection(e);
+    });
+  } else {
+    console.error('Could not find imageUpload element for direct listener');
+  }
+  
+  setupEventListeners();
+  initDraggableText();
+  console.log('40mm Badge Maker initialized successfully.');
+}
